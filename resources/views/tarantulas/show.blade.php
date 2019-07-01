@@ -9,7 +9,7 @@
 		    <h4><strong>{{ $tarantula->common_name }}</strong></h4>
 		  </div>
 		  <div class="card-body">
-		  	<img src="{{ URL::to('/').'/'.$tarantula->image_url }}" alt="">
+		  	<img src="{{ URL::to('/').'/'.$tarantula->image_url }}" alt="" height="250px">
 		    <p class="card-text">
 		    	<strong>Nombre Cientifico:</strong> {{ $tarantula->scientific_name }}
 		    </p>
@@ -26,9 +26,16 @@
 		    	<strong>Nombre Cientifico:</strong> {{ $tarantula->getPrice() }}
 		    </p>
 		  </div>
-		  <div class="card-footer bg-transparent text-center">
-		  	<button type="button" class="btn btn-outline-success">Agregar al carrito</button>
-		  </div>
+		  @if (Auth::check() && !Auth::user()->is_admin)
+			  <div class="card-footer bg-transparent text-center">
+			  	<form action="{{ route('in_shopping_carts.store') }}" method="POST">
+			  		@csrf
+			  		<input type="hidden" name="product_id" value="{{ $tarantula->id }}">
+			  		<input type="submit" value="Agregar al carrito" class="btn btn-outline-success">
+			  	</form>
+			  	{{-- <add-product-btn></add-product-btn> --}}
+			  </div>
+		  @endif
 		</div>
 	</div>
 </div>

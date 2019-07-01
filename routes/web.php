@@ -17,6 +17,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/cart', 'ShoppingCartController@show')->name('shopping_cart.show');
+
 Route::resource('tarantulas', 'TarantulasController');
+Route::resource('in_shopping_carts', 'ProductInShoppingCartController', ['only' => ['store', 'destroy']]);
 
 Route::get('/home', 'HomeController@index')->name('home');

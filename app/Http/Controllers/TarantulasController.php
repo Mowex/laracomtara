@@ -4,21 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Tarantula;
+use App\ShoppingCart;
+use Illuminate\Support\Facades\Auth;
 
 class TarantulasController extends Controller
 {
     public function __construct(){
         $this->middleware('auth', ['except' => ['index', 'show']]);
+        $this->middleware('permission', ['except' => ['index', 'show']]);
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        // $shopping_cart = '';
+        $mod = $request->mod ? $request->mod : 0;
         $tarantulas = Tarantula::all();
-        return view('tarantulas.index', ['tarantulas' => $tarantulas]);
+        return view('tarantulas.index', ['tarantulas' => $tarantulas, 'mod' => $mod]);
     }
 
     /**
@@ -106,7 +111,9 @@ class TarantulasController extends Controller
         $tarantula = Tarantula::find($id);
 
         if($files=$request->file('image')){
-            unlink(public_path($tarantula->image_url));
+            if(file_exists(public_path($tarantula->image_url)))
+                unlink(public_path($tarantula->image_url));
+
             $name = $request->scientific_name.'.'.$files->getClientOriginalExtension();
             if($files->move(public_path('image/tarantulas'),$name)){
                 $tarantula->image_url = 'image/tarantulas/'.$name;
@@ -137,7 +144,10 @@ class TarantulasController extends Controller
      */
     public function destroy($id)
     {
-        // die($id);
+        $tarantula = Tarantula::find($id);
+        if(file_exists(public_path($tarantula->image_url)))
+                unlink(public_path($tarantula->image_url));
+
         Tarantula::destroy($id);
         return redirect()->route('tarantulas.index')
                         ->with('success', 'Registro eliminado correctamente');
